@@ -9,27 +9,25 @@ use std::env;
 
 #[tokio::main]
 async fn main() {
+    dotenv().expect(".env file not found");
+    let model = env::var("LLM_MODEL").expect("input a model in .env");
+    let api_key = env::var("API_KEY").expect("Input openroute key in .env file");
+    let client = reqwest::Client::new();
 
     loop{
-        dotenv().expect(".env file not found");
 
+        // prompt inputgit push -u origin main
 
-        let model = env::var("LLM_MODEL").expect("input a model in .env");
-
-        // prompt input
         println!("--Enter Your Prompt--");
         let mut prompt = String::new();
         io::stdin().read_line(&mut prompt).expect("expected string");
         println!("User asked : {}\n", prompt.red());
-
-        let api_key = env::var("API_KEY").expect("Input openroute key in .env file");
 
         let payload = json!({
         "model": model,
         "messages": [{"role": "user", "content": prompt,}]
         });
         
-        let client = reqwest::Client::new();
         let res = client.post("https://openrouter.ai/api/v1/chat/completions")
         .header("Authorization", format!("Bearer {}", api_key))
         .json(&payload)
